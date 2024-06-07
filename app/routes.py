@@ -1,6 +1,6 @@
 from datetime import datetime
 from models import Membro, Tarefa
-from flask import request, jsonify, Blueprint
+from flask import request, jsonify, Blueprint, render_template, redirect, url_for, flash
 from app import db
 
 bp_membros = Blueprint("membros", __name__)
@@ -81,3 +81,22 @@ def marcar_tarefa_concluida(id):
 def listar_membros():
     tarefas = Tarefa.query.all()
     return jsonify([{"id": t.id, "nome": t.nome, "descricao": t.descricao, "prioridade": t.prioridade} for t in tarefas]), 200
+
+bp_tarefas_telas = Blueprint("tarefas_telas", __name__)
+
+@bp_tarefas_telas.route('/cadastro_tarefa', methods=['GET','POST'])
+def cadastro_tarefa():
+    if request.method == 'POST':
+        nome = request.form['nome']
+        descricao = request.form['descricao']
+        prioridade = request.form['prioridade']
+
+
+        nova_tarefa = Tarefa(nome=nome, descricao=descricao, prioridade=prioridade, finalizada=False, criador_id=1)
+        db.session.add(nova_tarefa)
+        db.session.commit()
+
+    return render_template('cadastro_tarefa.html')
+
+
+
